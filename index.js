@@ -3,6 +3,8 @@ const {connection} = require('./config/db');
 const { authentication } = require('./middlewares/authentication');
 const { userController } = require('./routes/user.routes');
 
+const passport = require('./config/google-oauth');
+
 const app = express();
 const PORT = process.env.PORT || 8002
 
@@ -11,6 +13,20 @@ app.use(express.json())
 app.get("/", (req, res) => {
     res.send("HomePage")
 })
+
+
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile','email'] }));
+
+app.get('/auth/google/callback', 
+  passport.authenticate('google', { failureRedirect: '/login', session: false }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    console.log(req.user);
+    res.redirect('/');
+  });
+
+
 
 app.use('/user', userController);
 
