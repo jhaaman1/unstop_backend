@@ -1,7 +1,7 @@
 const {Router} = require("express");
-const { Usermodel } = require("../models/User.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt"); 
+const { UserModel } = require("../models/User.model");
 
 const userController = Router();
 
@@ -12,7 +12,7 @@ userController.post("/signup", (req,res) => {
         if(err){
             res.send("something went wrong plese try again later")
         }
-        const user = new Usermodel({
+        const user = new UserModel({
             email,
             password: hash
         })

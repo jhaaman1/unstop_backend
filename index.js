@@ -1,46 +1,44 @@
-const express = require('express');
+const express = require("express")
 const {connection} = require('./config/db');
-const { authentication } = require('./middlewares/authentication');
-const { userController } = require('./routes/user.routes');
+require("dotenv").config()
+const cookieParser = require('cookie-parser');
+const cors = require("cors");
+const { registerRouter } = require("./routes/register.routes");
+const { loginRouter } = require("./routes/login.routes");
+const { userProfile } = require("./routes/userprofile.routes");
+const { googleOathRouter } = require("./routes/google-outh.routes");
 
-const passport = require('./config/google-oauth');
 
 const app = express();
-const PORT = process.env.PORT || 8002
+const PORT=process.env.PORT || 8000
+
+app.use(cors()) 
 
 app.use(express.json())
+app.use(cookieParser())
 
 app.get("/", (req, res) => {
-    res.send("HomePage")
+    res.send("welcome to api")
 })
 
-
-app.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile','email'] }));
-
-app.get('/auth/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/login', session: false }),
-  function(req, res) {
-    // Successful authentication, redirect home.
-    console.log(req.user);
-    res.redirect('/');
-  });
+app.use("/register",registerRouter)
+app.use("/login",loginRouter)
+app.use("/profile",userProfile)
+app.use("/auth",googleOathRouter)
 
 
 
-app.use('/user', userController);
 
-app.use(authentication)
 
 
 app.listen(PORT, async () => {
     try{
         await connection
-        console.log('Connected to DB')
+        console.log("Connection to DB successfully")
     }
     catch(err){
-        console.log('error connecting ot db')
         console.log(err)
+        console.log("Error connecting to DB")
     }
-    console.log(`port ${PORT} started`);
+    console.log(`Listening on PORT ${PORT}`)
 })
